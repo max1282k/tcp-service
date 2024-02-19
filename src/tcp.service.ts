@@ -10,7 +10,8 @@ export class TcpService {
 
       socket.on('data', (data) => {
         console.log('Received:', data.toString());
-        // You can process the received data here
+        // Send "ok" back to the client
+        socket.write('ok');
       });
 
       socket.on('end', () => {
