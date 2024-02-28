@@ -1,26 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import * as net from 'net';
-const PacketBuffer = require('./helper/PacketBuffer');
+import { PacketBuffer } from './packet-buffer.service'; // Import PacketBuffer service
 
 @Injectable()
 export class TcpService {
-  private packetBuffer: any;
-  constructor() {
-    this.packetBuffer = new PacketBuffer();
-  }
+  constructor(private readonly packetBuffer: PacketBuffer) {} // Inject PacketBuffer service
+
   start() {
-    // Create server for port 3000
     const server = net.createServer((socket) => {
       console.log('Client connected');
       socket.on('data', (data) => {
         console.log('Received:', data.toString());
-        const { latitude, longitude } = this.packetBuffer.handleData(data);
-        if (latitude !== null && longitude !== null) {
+        const result = this.packetBuffer.handleData(data);
+        if (result !== null) {
+          const { latitude, longitude } = result;
           console.log('Latitude:', latitude, 'Longitude:', longitude);
           socket.write('#ASD#1\r\n');
         } else {
-          console.log('invalid packet');
-
+          console.log('Invalid packet');
           socket.write('#ASD#-1\r\n');
         }
       });
